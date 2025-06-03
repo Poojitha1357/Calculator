@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=400, initial-scale=1.0" />
+    <title>Portrait UI Calculator</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <div class="background">
+        <video autoplay muted loop id="bg-video">
+            <source src="background.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+        </video>
+
+        <div class="center-box-border">
+            <div class="center-box">
+                <h1 class="multi3d-title">Calculator</h1>
+                <div class="calculator">
+                    <input type="text" id="display" readonly />
+
+                    <div class="buttons" id="normal-buttons">
+                        <button onclick="clearDisplay()">AC</button>
+                        <button onclick="backspace()">&#9003;</button>
+                        <button onclick="toggleSign()">+/-</button>
+                        <button onclick="appendValue('/')">÷</button>
+                        <button onclick="appendValue('7')">7</button>
+                        <button onclick="appendValue('8')">8</button>
+                        <button onclick="appendValue('9')">9</button>
+                        <button onclick="appendValue('*')">×</button>
+                        <button onclick="appendValue('4')">4</button>
+                        <button onclick="appendValue('5')">5</button>
+                        <button onclick="appendValue('6')">6</button>
+                        <button onclick="appendValue('-')">−</button>
+                        <button onclick="appendValue('1')">1</button>
+                        <button onclick="appendValue('2')">2</button>
+                        <button onclick="appendValue('3')">3</button>
+                        <button onclick="appendValue('+')">+</button>
+                        <button onclick="appendValue('%')">%</button>
+                        <button onclick="appendValue('0')">0</button>
+                        <button onclick="appendValue('.')">.</button>
+                        <button onclick="calculate()">=</button>
+                        <button onclick="convertCurrency('usdToInr')" style="grid-column: span 2;">$ → ₹</button>
+                        <button onclick="convertCurrency('inrToUsd')" style="grid-column: span 2;">₹ → $</button>
+                        <button onclick="toggleSci()" id="sci-toggle" style="grid-column: span 4; margin-top:12px;">sin/e^x/ln</button>
+                    </div>
+
+                    <div class="sci-buttons" id="sci-buttons" style="display:none;">
+                        <button onclick="toggleSciSecond()" id="btn-2nd">2nd</button>
+                        <button onclick="applyPower(2)" id="btn-x2">x²</button>
+                        <button onclick="applyPower(3)" id="btn-x3">x³</button>
+                        <button onclick="applyInverse()" id="btn-inv">1/x</button>
+                        <button onclick="applyUnaryFunction('log')" id="btn-ln">ln</button>
+                        <button onclick="toggleDegreeMode()" id="btn-deg">DEG</button>
+                        <button onclick="handlePi()" id="btn-pi">π</button>
+
+                        <button onclick="prepareTenPower()" id="btn-10x">10ˣ</button>
+                        <button onclick="calculateFactorial()" id="btn-fact">x!</button>
+                        <button onclick="applyUnaryFunction('sinh')" id="btn-sinh">sinh</button>
+                        <button onclick="applyUnaryFunction('cosh')" id="btn-cosh">cosh</button>
+                        <button onclick="applyUnaryFunction('tanh')" id="btn-tanh">tanh</button>
+                        <button onclick="applyUnaryFunction('sin')" id="btn-sin">sin</button>
+                        <button onclick="applyUnaryFunction('cos')" id="btn-cos">cos</button>
+                        <button onclick="applyUnaryFunction('tan')" id="btn-tan">tan</button>
+                        <button onclick="applyUnaryFunction('log10')" id="btn-log">log</button>
+                        <button onclick="applyUnaryFunction('exp')" id="btn-exp">eˣ</button>
+                        <button onclick="applyUnaryFunction('sqrt')" id="btn-sqrt">√</button>
+                        <button onclick="startPowerXY()" id="btn-xy">xʸ</button>
+                        <button onclick="appendValue('(')">(</button>
+                        <button onclick="appendValue(')')">)</button>
+                        <button onclick="toggleSci()" class="normal-toggle">+/-/*/%</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let display = document.getElementById('display');
+    let currentInput = '';
+    let currentMode = 'deg';
+    let isInverse = false;
+    let tenPowPending = false;
+    let pendingFunction = null;
+    let inversePending = false;
+
+    function getInputValue() {
+        let value = parseFloat(currentInput);
+        return value;
+    }
+
+    function clearDisplay() {
+        currentInput = '';
+        display.value = '';
+        tenPowPending = false;
+        pendingFunction = null;
+        inversePending = false;
+    }
+
+    function backspace() {
+        currentInput = currentInput.slice(0, -1);
+        if (tenPowPending) {
+            display.value = '10^' + currentInput;
+        } else if (inversePending) {
+            display.value = '1/(' + currentInput;
+        } else if (pendingFunction) {
+            display.value = pendingFunction + '(' + currentInput;
+        } else {
+            display.value = currentInput;
+        }
+    }
+
+    function appendValue(val) {
+        if (tenPowPending) {
+            currentInput += val;
+            display.value = '10^' + currentInput;
+        } else if (inversePending) {
+            currentInput += val;
+            display.value = '1/(' + currentInput;
+        } else if (pendingFunction) {
+            currentInput += val;
+            display.value = pendingFunction + '(' + currentInput;
+        } else {
+            currentInput += val;
+            display.value = currentInput;
+        }
+    }
+
+    function toggleSign() {
+        if (currentInput === '') return;
+        let value = getInputValue();
+        value = -value;
+        display.value = value;
+        currentInput = String(value);
+    }
+
+function appendValue(val) {
+    if (tenPowPending) {
+        currentInput += val;
+        display.value = '10^' + currentInput;
+    } else if (inversePending) {
+        currentInput += val;
+        display.value = '1/(' + currentInput;
+    } else if (pendingFunction) {
+        currentInput += val;
+        display.value = pendingFunction + '(' + currentInput;
+    } else {
+        currentInput += val;
+        display.value = currentInput;
+    }
+}
+
+function handlePi() {
+    currentInput += 'π';
+    display.value = currentInput;
+}
+
+function calculate() {
+    if (tenPowPending) {
+        calculateTenPower();
+        return;
+    }
+    if (inversePending) {
+        // ... same as before ...
+        return;
+    }
+    if (pendingFunction) {
+        applyUnaryFunction(pendingFunction);
+        pendingFunction = null;
+        return;
+    }
+    try {
+        let expression = currentInput
+            .replace(/÷/g, '/')
+            .replace(/×/g, '*')
+            .replace(/π/g, 'Math.PI')
+            .replace(/sin⁻¹\(/g, 'Math.asin(')
+            .replace(/cos⁻¹\(/g, 'Math.acos(')
+            .replace(/tan⁻¹\(/g, 'Math.atan(')
+            .replace(/sin\(/g, 'Math.sin(')
+            .replace(/cos\(/g, 'Math.cos(')
+            .replace(/tan\(/g, 'Math.tan(')
+            .replace(/log\(/g, 'Math.log(')
+            .replace(/log10\(/g, 'Math.log10(')
+            .replace(/ln\(/g, 'Math.log(')
+            .replace(/sqrt\(/g, 'Math.sqrt(');
+        let result = Function('"use strict";return (' + expression + ')')();
+        if (typeof result === "undefined" || isNaN(result)) return;
+        display.value = result;
+        currentInput = String(result);
+    } catch (e) {
+        display.value = "Invalid input";
+        currentInput = '';
+    }
+}
+
+    function convertCurrency(type) {
+        let value = getInputValue();
+        const exchangeRate = 83;
+        if (isNaN(value)) return;
+        if (type === 'usdToInr') {
+            display.value = (value * exchangeRate).toFixed(2);
+            currentInput = display.value;
+        } else if (type === 'inrToUsd') {
+            display.value = (value / exchangeRate).toFixed(2);
+            currentInput = display.value;
+        }
+    }
+
+    function toggleSci() {
+        let sciButtons = document.getElementById('sci-buttons');
+        let normalButtons = document.getElementById('normal-buttons');
+        if (sciButtons.style.display === 'none' || sciButtons.style.display === '') {
+            sciButtons.style.display = 'grid';
+            normalButtons.style.display = 'none';
+        } else {
+            sciButtons.style.display = 'none';
+            normalButtons.style.display = 'grid';
+        }
+    }
+
+    function toggleDegreeMode() {
+        currentMode = (currentMode === 'deg') ? 'rad' : 'deg';
+        const degButton = document.getElementById('btn-deg');
+        if (degButton) {
+            degButton.innerText = currentMode.toUpperCase();
+        }
+    }
+
+    function applyUnaryFunction(funcName) {
+        if (currentInput === '') {
+            pendingFunction = funcName;
+            display.value = funcName + '(';
+            return;
+        }
+
+        let value = parseFloat(currentInput);
+        let displayValue = currentInput;
+
+        const funcDisplay = {
+            'sin': 'sin', 'cos': 'cos', 'tan': 'tan',
+            'asin': 'sin⁻¹', 'acos': 'cos⁻¹', 'atan': 'tan⁻¹',
+            'sinh': 'sinh', 'cosh': 'cosh', 'tanh': 'tanh',
+            'asinh': 'sinh⁻¹', 'acosh': 'cosh⁻¹', 'atanh': 'tanh⁻¹',
+            'log': 'ln', 'log10': 'log', 'exp': 'eˣ', 'sqrt': '√'
+        };
+
+        let result, error = false;
+
+        if (['sin', 'cos', 'tan'].includes(funcName) && currentMode === 'deg') {
+            value = value * (Math.PI / 180);
+        }
+
+        switch (funcName) {
+            case 'sin':   result = Math.sin(value); break;
+            case 'cos':   result = Math.cos(value); break;
+            case 'tan':   result = Math.tan(value); break;
+            case 'asin':
+                if (value < -1 || value > 1) error = true;
+                else {
+                    result = Math.asin(value);
+                    if (currentMode === 'deg') result = result * (180 / Math.PI);
+                }
+                break;
+            case 'acos':
+                if (value < -1 || value > 1) error = true;
+                else {
+                    result = Math.acos(value);
+                    if (currentMode === 'deg') result = result * (180 / Math.PI);
+                }
+                break;
+            case 'atan':
+                result = Math.atan(value);
+                if (currentMode === 'deg') result = result * (180 / Math.PI);
+                break;
+            case 'sinh':  result = Math.sinh(value); break;
+            case 'cosh':  result = Math.cosh(value); break;
+            case 'tanh':  result = Math.tanh(value); break;
+            case 'asinh': result = Math.asinh(value); break;
+            case 'acosh':
+                if (value < 1) error = true;
+                else result = Math.acosh(value);
+                break;
+            case 'atanh':
+                if (value <= -1 || value >= 1) error = true;
+                else result = Math.atanh(value);
+                break;
+            case 'log':
+                if (value <= 0) error = true;
+                else result = Math.log(value);
+                break;
+            case 'log10':
+                if (value <= 0) error = true;
+                else result = Math.log10(value);
+                break;
+            case 'exp':   result = Math.exp(value); break;
+            case 'sqrt':
+                if (value < 0) error = true;
+                else result = Math.sqrt(value);
+                break;
+            default: return;
+        }
+
+        display.value = `${funcDisplay[funcName] || funcName}(${displayValue})`;
+        setTimeout(() => {
+            if (error || typeof result === 'undefined' || isNaN(result)) {
+                display.value = "Invalid input";
+                currentInput = '';
+            } else {
+                display.value = Number(result).toFixed(8).replace(/\.?0+$/, '');
+                currentInput = String(result);
+            }
+        }, 500);
+        pendingFunction = null;
+    }
+
+    function applyPower(exponent, isBaseTen = false) {
+        if (currentInput === '') return;
+        let value = getInputValue();
+        let result = isBaseTen ? Math.pow(10, value) : Math.pow(value, exponent);
+        display.value = Number(result).toFixed(8).replace(/\.?0+$/, '');
+        currentInput = String(result);
+    }
+
+    function prepareTenPower() {
+        tenPowPending = true;
+        currentInput = '';
+        display.value = '10^';
+    }
+
+    function calculateTenPower() {
+        let x = parseFloat(currentInput);
+        if (isNaN(x)) {
+            display.value = "Invalid input";
+            currentInput = '';
+            tenPowPending = false;
+            return;
+        }
+        display.value = `10^${x}`;
+        setTimeout(() => {
+            let result = Math.pow(10, x);
+            display.value = Number(result).toFixed(8).replace(/\.?0+$/, '');
+            currentInput = String(result);
+            tenPowPending = false;
+        }, 500);
+    }
+
+    function applyInverse() {
+        if (currentInput === '') {
+            inversePending = true;
+            currentInput = '';
+            display.value = '1/(';
+            return;
+        }
+        let value = parseFloat(currentInput);
+        if (value === 0) {
+            display.value = "Invalid input";
+            currentInput = '';
+            return;
+        }
+        let result = 1 / value;
+        display.value = Number(result).toFixed(8).replace(/\.?0+$/, '');
+        currentInput = String(result);
+    }
+
+    function calculateFactorial() {
+        let num = getInputValue();
+        num = Math.floor(num);
+        if (num < 0) return;
+        let result = 1;
+        for (let i = 2; i <= num; i++) {
+            result *= i;
+        }
+        display.value = result;
+        currentInput = String(result);
+    }
+
+    function handlePi() {
+        currentInput += 'π';
+        display.value = currentInput;
+    }
+
+    function startPowerXY() {
+        currentInput += '**';
+        display.value = currentInput;
+    }
+
+    function toggleSciSecond() {
+        isInverse = !isInverse;
+        const trigButtons = [
+            { id: 'btn-sin',  normal: { label: 'sin',   func: "applyUnaryFunction('sin')"   }, inverse: { label: 'sin⁻¹',  func: "applyUnaryFunction('asin')"   } },
+            { id: 'btn-cos',  normal: { label: 'cos',   func: "applyUnaryFunction('cos')"   }, inverse: { label: 'cos⁻¹',  func: "applyUnaryFunction('acos')"   } },
+            { id: 'btn-tan',  normal: { label: 'tan',   func: "applyUnaryFunction('tan')"   }, inverse: { label: 'tan⁻¹',  func: "applyUnaryFunction('atan')"   } },
+            { id: 'btn-sinh', normal: { label: 'sinh',  func: "applyUnaryFunction('sinh')"  }, inverse: { label: 'sinh⁻¹', func: "applyUnaryFunction('asinh')"  } },
+            { id: 'btn-cosh', normal: { label: 'cosh',  func: "applyUnaryFunction('cosh')"  }, inverse: { label: 'cosh⁻¹', func: "applyUnaryFunction('acosh')"  } },
+            { id: 'btn-tanh', normal: { label: 'tanh',  func: "applyUnaryFunction('tanh')"  }, inverse: { label: 'tanh⁻¹', func: "applyUnaryFunction('atanh')"  } }
+        ];
+
+        trigButtons.forEach(btn => {
+            const el = document.getElementById(btn.id);
+            if (!el) return;
+            if (isInverse) {
+                el.innerText = btn.inverse.label;
+                el.setAttribute('onclick', btn.inverse.func);
+            } else {
+                el.innerText = btn.normal.label;
+                el.setAttribute('onclick', btn.normal.func);
+            }
+        });
+
+        const btn2nd = document.getElementById('btn-2nd');
+        if (btn2nd) {
+            btn2nd.style.background = isInverse
+                ? 'linear-gradient(90deg, #ff0077, #8800ff)'
+                : 'linear-gradient(278deg, rgba(35, 2, 78, 0.87) 8%, rgba(232, 31, 168, 0.87) 68%)';
+        }
+    }
+</script>
+</body>
+</html>

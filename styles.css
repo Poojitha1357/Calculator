@@ -1,0 +1,188 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+.background {
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.center-box {
+    width: 400px;
+    height: 600px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    padding: 30px;
+    color: white;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.calculator {
+    position: relative;
+    z-index: 1;
+    background: rgba(109, 28, 255, 0.18);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    width: 320px;
+    margin: 0 auto;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.calculator::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    padding: 3px;
+    background: linear-gradient(90deg, #2d0036, #6d1cff, #1a237e, #00bcd4, #2d0036);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.calculator #display {
+    width: 100%;
+    height: 70px;
+    font-size: 2.2em;
+    margin-bottom: 18px;
+    text-align: right;
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid #1fe8db;
+    margin-left: -10px;
+    background: linear-gradient(278deg, rgba(2, 74, 78, 0.514) 8%, rgba(31, 215, 232, 0.87) 68%);
+    color: rgb(4, 4, 38);
+    transition: background 0.3s, color 0.3s;
+
+    /* Add these two lines for the cursor effect */
+    position: relative;
+    caret-color: transparent; /* if using an <input> or <textarea> */
+}
+
+/* Add this block right after the one above */
+.calculator #display::after {
+    content: "";
+    display: inline-block;
+    width: 2px;
+    height: 1.2em;
+    background: #1a237e;
+    position: absolute;
+    right: 16px;        /* Adjust if needed for your padding */
+    top: 50%;
+    transform: translateY(-50%);
+    animation: blink-cursor 1s steps(1) infinite;
+}
+
+@keyframes blink-cursor {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+.calculator .buttons,
+.calculator .sci-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    width: 100%;
+    margin-top: 0;
+}
+
+.calculator button,
+.calculator .sci-buttons button {
+    padding: 12px 0;
+    font-size: 1em;
+    border: none;
+    border-radius: 6px;
+    background: linear-gradient(278deg, rgba(35, 2, 78, 0.87) 8%, rgba(232, 31, 168, 0.87) 68%);
+    color: #fff;
+    text-shadow: 0 0 8px #fff, 0 0 4px #e81fca, 0 0 2px #fff;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s, text-shadow 0.3s;
+    font-weight: bold;
+    min-width: 60px;
+    min-height: 48px;
+    box-sizing: border-box;
+}
+
+.calculator .sci-buttons button {
+    font-size: 1em;
+    padding: 12px 0;
+    min-height: 48px;
+}
+
+.calculator .sci-buttons .normal-toggle {
+    grid-column: span 4;
+    margin-top: 12px;
+}
+
+.calculator button:hover,
+.calculator .sci-buttons button:hover {
+    filter: brightness(1.15);
+    box-shadow: 0 0 8px #e81fca;
+}
+
+.center-box-border {
+    width: 400px;
+    height: 600px;
+    padding: 5px;
+    border-radius: 25px;
+    background: linear-gradient(270deg, #ff00cc, #3333ff, #00ffcc, #ffcc00, #ff00cc);
+    background-size: 800% 800%;
+    animation: borderMove 8s linear infinite;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@keyframes borderMove {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}
+
+.multi3d-title {
+    margin: 0 0 18px 0;
+    font-size: 2.5em;
+    font-weight: bold;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, #2d0036, #6d1cff, #1a237e, #00bcd4, #2d0036, #000, #222);
+    background-size: 200% auto;
+    color: #ffffff;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-fill-color: transparent;
+    animation: shine-move 3s linear infinite;
+    text-shadow: 2px 2px 0 #111, 4px 4px 10px #1a237e88, 0 2px 8px #00bcd488;
+    text-align: center;
+}
+
+#bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -1;
+    pointer-events: none;
+}
+
